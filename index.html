@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CampusPulse — IT Support Desk</title>
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+  <canvas id="raindrop-canvas" aria-hidden="true"></canvas>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="brand-badge" aria-hidden="true">IT</span>
+        <div>
+          <h1 class="site-title">CampusPulse IT Support Desk</h1>
+          <p class="site-subtitle">Centralized campus technical request &amp; incident tracker</p>
+        </div>
+      </div>
+
+      <nav aria-label="Primary Navigation" class="main-nav">
+        <a href="#home-section" class="nav-link">Home</a>
+        <a href="#manage-section" class="nav-link">Manage Records</a>
+        <a href="#about-section" class="nav-link">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content" class="container">
+    <!-- HOME SECTION -->
+    <section id="home-section" class="hero-card" aria-labelledby="home-heading">
+      <div class="hero-content">
+        <span class="pill-tag">Frontend Prototype</span>
+        <h2 id="home-heading">Fast, Transparent Technical Support</h2>
+        <p>
+          Log hardware faults, campus Wi-Fi drops, lab software installations, and account lockouts in seconds. 
+          Track every ticket from initial report to verified resolution.
+        </p>
+      </div>
+
+      <div class="stats-grid" aria-label="Ticket Summary Statistics">
+        <div class="stat-box">
+          <span class="stat-label">Total Tickets</span>
+          <strong class="stat-value" id="stat-total">0</strong>
+        </div>
+        <div class="stat-box stat-pending">
+          <span class="stat-label">Pending</span>
+          <strong class="stat-value" id="stat-pending">0</strong>
+        </div>
+        <div class="stat-box stat-progress">
+          <span class="stat-label">In progress</span>
+          <strong class="stat-value" id="stat-progress">0</strong>
+        </div>
+        <div class="stat-box stat-completed">
+          <span class="stat-label">Completed</span>
+          <strong class="stat-value" id="stat-completed">0</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- MANAGE RECORDS SECTION -->
+    <section id="manage-section" class="workspace-grid" aria-labelledby="manage-heading">
+      <!-- LEFT COLUMN: TICKET FORM -->
+      <div class="panel form-panel">
+        <div class="panel-header">
+          <h2 id="form-heading">Log New Support Request</h2>
+          <p class="panel-desc">All fields are validated before saving to browser storage.</p>
+        </div>
+
+        <form id="record-form" novalidate>
+          <input type="hidden" id="record-id" value="">
+
+          <div class="form-group">
+            <label for="title">Request Title <span class="req">*</span></label>
+            <input 
+              type="text" 
+              id="title" 
+              name="title" 
+              placeholder="e.g., Lab 3 Projector HDMI Signal Drop" 
+              maxlength="80" 
+              required
+            >
+            <small class="field-hint">3 to 80 characters</small>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="category">Category <span class="req">*</span></label>
+              <input 
+                type="text" 
+                id="category" 
+                name="category" 
+                list="category-suggestions"
+                placeholder="e.g., Network, Hardware, Software" 
+                maxlength="40" 
+                required
+              >
+              <datalist id="category-suggestions">
+                <option value="Network">
+                <option value="Hardware">
+                <option value="Software">
+                <option value="Account & Access">
+                <option value="Lab Equipment">
+              </datalist>
+              <small class="field-hint">2 to 40 characters</small>
+            </div>
+
+            <div class="form-group">
+              <label for="status">Status <span class="req">*</span></label>
+              <select id="status" name="status" required>
+                <option value="Pending">Pending</option>
+                <option value="In progress">In progress</option>
+                <option value="Completed">Completed</option>
+              </select>
+              <small class="field-hint">Current ticket state</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Issue Description <span class="req">*</span></label>
+            <textarea 
+              id="description" 
+              name="description" 
+              rows="4" 
+              placeholder="Provide room number, error codes, or steps to reproduce..." 
+              maxlength="300" 
+              required
+            ></textarea>
+            <small class="field-hint">5 to 300 characters</small>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="submit-btn">Submit Ticket</button>
+            <button type="button" class="btn btn-secondary hidden" id="cancel-edit-btn">Cancel Edit</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- RIGHT COLUMN: SEARCH, FILTER & RECORDS LIST -->
+      <div class="panel list-panel">
+        <div class="panel-header list-header">
+          <div>
+            <h2 id="manage-heading">Support Queue</h2>
+            <p class="panel-desc" id="results-count" aria-live="polite">Showing 0 records</p>
+          </div>
+        </div>
+
+        <!-- Feedback Banner -->
+        <div id="feedback-banner" class="feedback hidden" role="status" aria-live="polite"></div>
+
+        <!-- Filter Controls -->
+        <div class="filter-bar">
+          <div class="form-group search-group">
+            <label for="search-input">Search by Title</label>
+            <input 
+              type="search" 
+              id="search-input" 
+              placeholder="Type keywords to filter tickets..."
+            >
+          </div>
+
+          <div class="form-group filter-group">
+            <label for="status-filter">Filter by Status</label>
+            <select id="status-filter">
+              <option value="ALL">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="In progress">In progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="empty-state hidden">
+          <h3>No matching support tickets found</h3>
+          <p>Try clearing your search filter or submit a new support request on the left.</p>
+        </div>
+
+        <!-- Records Grid -->
+        <div id="records-container" class="record-grid"></div>
+      </div>
+    </section>
+
+    <!-- ABOUT SECTION -->
+    <section id="about-section" class="about-card" aria-labelledby="about-heading">
+      <h2 id="about-heading">About This System</h2>
+      <div class="about-grid">
+        <div>
+          <p><strong>Project Name:</strong> CampusPulse IT Support Desk </p>
+          <p><strong>Student Number:</strong> 202512781</p>
+        </div>
+        <div>
+          <p>
+            <strong>Data Storage Notice:</strong> This version uses <strong>browser demonstration data</strong> 
+            stored locally in your browser via <code>localStorage</code>. Changes persist across page refreshes 
+            on this device and will connect to a live Node.js REST API in Activity 8.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- DETAILS MODAL FOR "VIEW" BUTTON -->
+  <dialog id="view-modal" class="ticket-modal" aria-labelledby="modal-title">
+    <div class="modal-inner">
+      <div class="modal-header">
+        <span class="ticket-id-badge" id="modal-id">#0</span>
+        <button type="button" class="btn-close" id="close-modal-btn" aria-label="Close details">&times;</button>
+      </div>
+      <h3 id="modal-title" class="modal-title">Ticket Title</h3>
+      <div class="modal-meta">
+        <span id="modal-category" class="category-chip">Category</span>
+        <span id="modal-status" class="status-badge">Status</span>
+      </div>
+      <div class="modal-body">
+        <h4>Full Issue Description</h4>
+        <p id="modal-description"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="modal-done-btn">Close</button>
+      </div>
+    </div>
+  </dialog>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>Mulungushi University • School of Engineering and Technology • Computer Science Department (ICT251)</p>
+    </div>
+  </footer>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
